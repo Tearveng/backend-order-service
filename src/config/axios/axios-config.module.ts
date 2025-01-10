@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AXIOS_INSTANCE_TOKEN } from './axios-config.token';
-import axios, { AxiosInstance } from 'axios';
+import axios from 'axios';
 
 // This is where we define the token and provide the Axios instance
 @Module({

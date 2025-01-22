@@ -4,23 +4,24 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OrderModule } from './modules/orders/order.module';
 import { DataSource } from 'typeorm';
-import { OrdersEntity } from './entities/Orders';
-import { ItemsEntity } from './entities/Items';
 import { HeadersMiddleware } from './shared/services/HeadersMiddleware';
 import { RequestContextService } from './shared/services/RequestContextService';
-import { CartsEntity } from './entities/Carts';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { DatabaseConfig } from './config';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: 'root',
-      password: 'admin123',
-      database: 'eiii_kommerce',
-      entities: [OrdersEntity, ItemsEntity, CartsEntity],
-      synchronize: true,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      cache: true,
+      load: [DatabaseConfig],
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        ...configService.get('database'),
+      }),
+      inject: [ConfigService],
     }),
     OrderModule,
   ],

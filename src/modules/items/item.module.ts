@@ -6,10 +6,15 @@ import { ItemsEntity } from '../../entities/Items';
 import { ItemsController } from './item.controller';
 import { ItemsService } from './item.service';
 import { ClientService } from '../../shared/services/ClientService';
+import { CartModule } from '../carts/cart.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ItemsEntity]), AxiosConfigModule],
+  imports: [
+    TypeOrmModule.forFeature([ItemsEntity]),
+    AxiosConfigModule,
+    CartModule,
+  ],
   controllers: [ItemsController],
   providers: [ItemsService, ClientService, HttpService],
 })
-export class OrderModule {}
+export class ItemModule {}

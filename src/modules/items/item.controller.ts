@@ -1,8 +1,10 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { ItemsService } from './item.service';
 import { ItemPayload } from '../../models/Item.interface';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('items')
+@ApiTags('items')
 export class ItemsController {
   constructor(private readonly itemService: ItemsService) {}
 

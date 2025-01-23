@@ -8,6 +8,8 @@ import { HeadersMiddleware } from './shared/services/HeadersMiddleware';
 import { RequestContextService } from './shared/services/RequestContextService';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DatabaseConfig } from './config';
+import { CartModule } from './modules/carts/cart.module';
+import { ItemModule } from './modules/items/item.module';
 
 @Module({
   imports: [
@@ -24,6 +26,8 @@ import { DatabaseConfig } from './config';
       inject: [ConfigService],
     }),
     OrderModule,
+    CartModule,
+    ItemModule,
   ],
   controllers: [AppController],
   providers: [AppService, RequestContextService],

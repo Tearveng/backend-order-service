@@ -17,17 +17,19 @@ async function bootstrap() {
 
   // set up swagger
   const config = new DocumentBuilder()
-    .setTitle('Product API document')
-    .setDescription('Product api endpoint connecting...')
+    .setTitle('Order API document')
+    .setDescription('Order api endpoint connecting...')
     .setVersion('1.0')
-    .addTag('products')
+    .addTag('orders')
+    .addTag('carts')
+    .addTag('items')
     .addTag('app')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document, {
     customCss: '.swagger-ui { background-color: #f5f5f5; }', // Custom CSS
     // customJs: '/public/swagger-custom.js', // Custom JS (if needed)
-    customSiteTitle: 'Swagger - Products', // Custom site title
+    customSiteTitle: 'Swagger - Orders', // Custom site title
   }); // This will expose Swagger UI at /api
   await app.listen(4002);
 }

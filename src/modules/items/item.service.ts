@@ -7,6 +7,7 @@ import { ItemPayload } from '../../models/Item.interface';
 import { circularJSON } from '../../shared/circularJSON';
 import { Product } from '../../models/Product.interface';
 import { CartsEntity } from '../../entities/Carts';
+import {CartsService} from "../carts/cart.service";
 
 @Injectable()
 export class ItemsService {
@@ -14,13 +15,13 @@ export class ItemsService {
 
   constructor(
     @InjectRepository(ItemsEntity)
-    private readonly cartRepository: Repository<CartsEntity>,
     private readonly itemRepository: Repository<ItemsEntity>,
+    private readonly cartService: CartsService,
     private readonly clientService: ClientService,
   ) {}
 
-  async findCartById(cartId: string): Promise<CartsEntity> {
-    const cart = await this.cartRepository.findOneBy({ cartId });
+  async findCartById(cartId: number): Promise<CartsEntity> {
+    const cart = await this.cartService.findCartById(cartId);
     if (!cart) {
       throw new NotFoundException('Cart not found');
     }
@@ -37,10 +38,9 @@ export class ItemsService {
     if (!product) {
       throw new NotFoundException('Product not found');
     }
-    // const
 
     // get cart
-    const cart = await this.cartRepository.findOneBy({ userId: 1 });
+    const cart = await this.cartService.findCartById(1);
     if (!cart) {
       throw new NotFoundException('Cart not found');
     }

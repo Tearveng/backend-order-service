@@ -1,8 +1,10 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { CartsService } from './cart.service';
 import { CartPayload } from '../../models/Cart.interface';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('carts')
+@ApiTags('carts')
 export class CartsController {
   constructor(private readonly cartService: CartsService) {}
 
@@ -11,8 +13,11 @@ export class CartsController {
     return this.cartService.createCart(payload);
   }
 
-  // @Put('/update-orders/:id')
-  // async update(@Param('id') id: number, @Body() payload: OrderPayload) {
-  //     return this.orderService.updateOrder(id, payload);
-  // }
+  @Get()
+  async getAllCartsPagination(
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+  ) {
+    return this.cartService.paginateCarts(page, limit);
+  }
 }

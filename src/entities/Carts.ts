@@ -13,8 +13,8 @@ export class CartsEntity {
   @PrimaryGeneratedColumn('uuid')
   cartId: string;
 
-  @Column('json')
-  user: object;
+  @Column()
+  userId: number;
 
   @OneToMany(() => ItemsEntity, (cartItem) => cartItem.cart, { cascade: true })
   items: ItemsEntity[];

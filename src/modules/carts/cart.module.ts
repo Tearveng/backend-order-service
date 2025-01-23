@@ -11,5 +11,6 @@ import { ClientService } from '../../shared/services/ClientService';
   imports: [TypeOrmModule.forFeature([CartsEntity]), AxiosConfigModule],
   controllers: [CartsController],
   providers: [CartsService, ClientService, HttpService],
+  exports: [CartsService],
 })
-export class OrderModule {}
+export class CartModule {}

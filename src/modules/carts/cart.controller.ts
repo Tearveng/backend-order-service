@@ -10,6 +10,7 @@ export class CartsController {
 
   @Post('/create-carts')
   async create(@Body() payload: CartPayload) {
+    console.log("CartPayload", payload)
     return this.cartService.createCart(payload);
   }
 

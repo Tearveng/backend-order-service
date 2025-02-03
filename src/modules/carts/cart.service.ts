@@ -6,8 +6,6 @@ import { ClientService } from '../../shared/services/ClientService';
 import { circularJSON } from '../../shared/circularJSON';
 import { CartPayload } from '../../models/Cart.interface';
 import { Profile } from '../../models/Profile.interface';
-import { UserDTO } from '../../entities/dto/UserDTO';
-import { omit } from '../../utils/RemoveAttribute';
 
 @Injectable()
 export class CartsService {
@@ -21,11 +19,8 @@ export class CartsService {
 
   async createCart(payload: CartPayload) {
     const { userId } = payload;
-    const user = circularJSON.convertJsonStringToObject(
-      await this.clientService.getProfileById(userId),
-    ) as Profile;
     const cart = this.cartRepository.create({
-      userId: user.id,
+      userId,
       items: [],
     });
     const saveCart = await this.cartRepository.save(cart);
@@ -34,6 +29,7 @@ export class CartsService {
   }
 
   async paginateCarts(page = 1, limit = 10) {
+    const remapCarts: any[] = [];
     const [carts, total] = await this.cartRepository.findAndCount({
       order: {
         createdAt: 'desc',
@@ -41,14 +37,16 @@ export class CartsService {
       skip: (page - 1) * limit,
       take: limit,
     });
-    const fakeUser: UserDTO = {
-      email: 'admin@gmail.com',
-      firstName: 'Admin',
-      lastName: 'Smith',
-      username: 'Admin Smith',
+    const getUser = async (userId: string) => {
+      return circularJSON.convertJsonStringToObject(
+        await this.clientService.getProfileById(userId),
+      ) as Profile;
     };
-    // const userIds = carts.flatMap((cart) => cart.userId);
-    // const newUserIds = [...new Set(userIds)];
+
+    for (const cart of carts) {
+      const user = await getUser(`${cart.userId}`);
+      remapCarts.push({ ...cart, user });
+    }
 
     return {
       meta: {
@@ -58,7 +56,7 @@ export class CartsService {
         totalPages: Math.ceil(total / limit),
         currentPage: page,
       },
-      data: carts.map((cart) => ({ ...omit(cart, 'userId'), user: fakeUser })),
+      data: remapCarts,
     };
   }
 

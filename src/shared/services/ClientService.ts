@@ -68,10 +68,18 @@ export class ClientService {
   async getProfileById(id: number | string): Promise<string> {
     try {
       const response = await firstValueFrom(
-        this.httpService.get(`http://localhost:4000/profile/${id}`),
+        this.httpService.get(`http://localhost:4001/users/user/${id}`).pipe(
+          catchError((error) => {
+            this.logger.log('error', error.response);
+            // Custom error handling
+            throw error;
+          }),
+        ),
       );
-      this.logger.log(`[Profile service]: ${JSON.stringify(response)}`);
-      return response.data;
+      const resConvert = `${circularJSON.stringify(response.data)}`;
+      // Process the response data
+      this.logger.log(`[Profile service]: successfully profile`);
+      return resConvert;
     } catch (error) {
       this.logger.error('Error making HTTP request:', error);
       throw error;

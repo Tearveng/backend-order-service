@@ -1,7 +1,7 @@
 import { registerAs } from '@nestjs/config';
-import { OrdersEntity } from '../entities/Orders';
 import { CartsEntity } from '../entities/Carts';
 import { ItemsEntity } from '../entities/Items';
+import { OrdersEntity } from '../entities/Orders';
 
 export default registerAs('database', () => ({
   type: 'mysql',
@@ -11,7 +11,7 @@ export default registerAs('database', () => ({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME, //'eiii_kommerce'
   entities: [OrdersEntity, CartsEntity, ItemsEntity],
-  synchronize: false,
+  synchronize: true,
   logging: process.env.NODE_ENV === 'development',
   migrations: [`${__dirname}/../../db/migrations/*{.ts,.js}`],
   migrationsTableName: 'order_migrations',

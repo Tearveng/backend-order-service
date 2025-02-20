@@ -2,7 +2,7 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { OrdersEntity } from '../../entities/Orders';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { OrderPayload, payloadItems } from '../../models/Order.interface';
+import { OrderPayload, PayloadItems } from '../../models/Order.interface';
 import { Product, ResponseProduct } from '../../models/Product.interface';
 import { circularJSON } from '../../shared/circularJSON';
 import { calculateTotal } from '../../utils/CalculateTotal';
@@ -28,7 +28,7 @@ export class OrdersService {
   }
 
   async orderProcess(payload: OrderPayload) {
-    const productPayload = `${payload.items.flatMap((item: payloadItems) => item.skuCode).join(',')}`;
+    const productPayload = `${payload.items.flatMap((item: PayloadItems) => item.skuCode).join(',')}`;
     // get products
     const products = circularJSON.convertJsonStringToObject(
       await this.clientService.getProducts(`${productPayload}`),

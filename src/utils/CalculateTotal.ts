@@ -1,6 +1,6 @@
-import { payloadItems } from '../models/Order.interface';
+import { PayloadItems } from '../models/Order.interface';
 
-export const calculateTotal = (price: number, item: payloadItems | null) => {
+export const calculateTotal = (price: number, item: PayloadItems | null) => {
   if (item) {
     return price * item.quantity;
   }

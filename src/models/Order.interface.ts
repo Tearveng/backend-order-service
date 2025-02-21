@@ -7,6 +7,7 @@ export interface PayloadItems {
 
 export interface OrderPayload {
   items: PayloadItems[];
-  profileId: number | string;
+  clientId: number;
+  profileId: number;
   address: string;
 }

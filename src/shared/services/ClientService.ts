@@ -20,7 +20,7 @@ export class ClientService {
           )
           .pipe(
             catchError((error) => {
-              this.logger.log('error', error.response);
+              this.logger.log('error', error);
               // Custom error handling
               throw error;
             }),

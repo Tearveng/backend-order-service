@@ -51,9 +51,18 @@ export class OrdersService {
     return { products: updateQuantity, total };
   }
 
+  async clientProcess(payload: OrderPayload) {
+    const client = circularJSON.convertJsonStringToObject(
+      await this.clientService.getProfileById(payload.clientId),
+    );
+    console.log('client', client);
+  }
+
   // create order
   async createOrder(payload: OrderPayload) {
-    // const profile = await this.getProfileById(payload.profileId);
+    console.log('in here');
+    // const profile = await this.clientProcess(payload);
+    // const client = await this.clientService.getProfileById(payload.clientId);
     const processing = await this.orderProcess(payload);
     const creatOrder = this.orderRepository.create({
       ...payload,

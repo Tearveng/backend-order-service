@@ -4,7 +4,6 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
-  AfterLoad,
 } from 'typeorm';
 import { Product } from '../models/Product.interface';
 import { Profile } from '../models/Profile.interface';
@@ -13,6 +12,12 @@ import { Profile } from '../models/Profile.interface';
 export class OrdersEntity {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Column({ type: 'int' })
+  profileId: number;
+
+  @Column({ type: 'int' })
+  clientId: number;
 
   @Column({ default: '' })
   refererCode: string;
@@ -24,6 +29,8 @@ export class OrdersEntity {
   total: number;
 
   profile: Profile;
+
+  client: Profile;
 
   items: Product[];
 

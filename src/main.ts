@@ -1,8 +1,9 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { join } from 'path';
-import { NestExpressApplication } from '@nestjs/platform-express';
+import { AppModule } from './app.module';
+import { AxiosExceptionFilter } from './exception/AxiosExceptionFilter';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -14,6 +15,9 @@ async function bootstrap() {
   app.enableCors({
     origin: '*',
   });
+
+   // Apply AxiosExceptionFilter globally
+   app.useGlobalFilters(new AxiosExceptionFilter());
 
   // set up swagger
   const config = new DocumentBuilder()

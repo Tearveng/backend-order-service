@@ -1,13 +1,13 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { OrdersEntity } from '../../entities/Orders';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { OrdersEntity } from '../../entities/Orders';
 import { OrderPayload, PayloadItems } from '../../models/Order.interface';
 import { Product, ResponseProduct } from '../../models/Product.interface';
 import { circularJSON } from '../../shared/circularJSON';
+import { ClientService } from '../../shared/services/ClientService';
 import { calculateTotal } from '../../utils/CalculateTotal';
 import { eFindBySkuCode } from '../../utils/EFoundBySkuCode';
-import { ClientService } from '../../shared/services/ClientService';
 
 @Injectable()
 export class OrdersService {
@@ -51,22 +51,23 @@ export class OrdersService {
     return { products: updateQuantity, total };
   }
 
-  async clientProcess(payload: OrderPayload) {
-    const client = circularJSON.convertJsonStringToObject(
-      await this.clientService.getProfileById(payload.clientId),
+  async clientProcess(id: number) {
+    return circularJSON.convertJsonStringToObject(
+      await this.clientService.getProfileById(id),
     );
-    console.log('client', client);
   }
 
   // create order
   async createOrder(payload: OrderPayload) {
-    console.log('in here');
-    // const profile = await this.clientProcess(payload);
-    // const client = await this.clientService.getProfileById(payload.clientId);
+    const profile = await this.clientProcess(payload.profileId);
+    const client = await this.clientProcess(payload.clientId);
+    console.log('client', client);
     const processing = await this.orderProcess(payload);
     const creatOrder = this.orderRepository.create({
       ...payload,
       total: processing.total,
+      subtotal: processing.total,
+      totalPrice: processing.total,
     });
 
     const saveOrder = await this.orderRepository.save(creatOrder);
@@ -74,13 +75,8 @@ export class OrdersService {
     return {
       ...saveOrder,
       items: processing.products.data,
-      profile: {
-        id: 1,
-        email: 'sila.meas@allweb.com.kh',
-        firstName: 'sila',
-        lastName: 'meas',
-        username: '',
-      },
+      profile: profile,
+      client: client
     };
   }
 

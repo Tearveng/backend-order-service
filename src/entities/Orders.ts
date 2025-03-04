@@ -1,8 +1,8 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
-  CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Product } from '../models/Product.interface';
@@ -43,7 +43,7 @@ export class OrdersEntity {
   @Column({ default: 'USD' })
   currency: string;
 
-  @Column()
+  @Column({nullable: true})
   couponCode: string;
 
   @CreateDateColumn()

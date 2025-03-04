@@ -1,5 +1,5 @@
-import { Injectable, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
+import { Injectable, Logger } from '@nestjs/common';
 import { catchError, firstValueFrom } from 'rxjs';
 import { circularJSON } from '../circularJSON';
 
@@ -20,14 +20,14 @@ export class ClientService {
           )
           .pipe(
             catchError((error) => {
-              this.logger.log('error', error);
+              this.logger.log('error', error.response.data);
               // Custom error handling
               throw error;
             }),
           ),
       );
 
-      const resConvert = `${circularJSON.stringify(response.data)}`;
+      const resConvert = `${circularJSON.stringify(response)}`;
       // Process the response data
       this.logger.log(`[Product service]: ${resConvert}`);
       return resConvert;
@@ -48,7 +48,7 @@ export class ClientService {
           )
           .pipe(
             catchError((error) => {
-              this.logger.log('error', error.response);
+              this.logger.log('error', error.response.data);
               // Custom error handling
               throw error;
             }),
@@ -70,7 +70,7 @@ export class ClientService {
       const response = await firstValueFrom(
         this.httpService.get(`http://localhost:4001/users/user/${id}`).pipe(
           catchError((error) => {
-            this.logger.log('error', error.response);
+            this.logger.log('error', error.response.data);
             // Custom error handling
             throw error;
           }),

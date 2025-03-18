@@ -51,6 +51,28 @@ export class OrdersService {
     return { products: updateQuantity, total };
   }
 
+  // find all orders pagination
+  async paginateOrders(page = 1, limit = 10) {
+    const [orders, total] = await this.orderRepository.findAndCount({
+      order: {
+        createdAt: 'asc',
+      },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return {
+      data: orders,
+      meta: {
+        totalItems: total,
+        itemCount: orders.length,
+        itemsPerPage: limit,
+        totalPages: Math.ceil(total / limit),
+        currentPage: page,
+      },
+    };
+  }
+
   async clientProcess(id: number) {
     return circularJSON.convertJsonStringToObject(
       await this.clientService.getProfileById(id),

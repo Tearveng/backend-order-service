@@ -3,7 +3,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { OrdersEntity } from '../../entities/Orders';
 import { OrderPayload, PayloadItems } from '../../models/Order.interface';
-import { Product, ResponseProduct } from '../../models/Product.interface';
+import {
+  Product,
+  ResponseProduct,
+  ResponseStock,
+  Stock,
+} from '../../models/Product.interface';
 import { circularJSON } from '../../shared/circularJSON';
 import { ClientService } from '../../shared/services/ClientService';
 import { calculateTotal } from '../../utils/CalculateTotal';
@@ -51,6 +56,37 @@ export class OrdersService {
     return { products: updateQuantity, total };
   }
 
+  async orderStockProcess(payload: OrderPayload) {
+    const stockPayload = `${payload.items.flatMap((item: PayloadItems) => item.skuCode).join(',')}`;
+    // get products
+    const stocks = circularJSON.convertJsonStringToObject(
+      await this.clientService.getStocks(`${stockPayload}`),
+    ) as ResponseStock;
+    // update quantity
+    const updateQuantity = {
+      ...stocks,
+      data: stocks.data.map((item: Stock) => ({
+        ...item,
+        quantity: eFindBySkuCode(item.skuCode, payload.items).quantity,
+      })),
+    };
+    // get total
+    const total = stocks.data
+      .flatMap((p: Stock) =>
+        calculateTotal(p.price, eFindBySkuCode(p.skuCode, payload.items)),
+      )
+      .reduce((acc, current) => acc + current, 0);
+
+    return { stocks: updateQuantity, total };
+  }
+
+  async stockSoldProcess(stocks: Stock[]) {
+    // get products
+    return circularJSON.convertJsonStringToObject(
+      await this.clientService.stockSold(stocks),
+    );
+  }
+
   // find all orders pagination
   async paginateOrders(page = 1, limit = 10) {
     const [orders, total] = await this.orderRepository.findAndCount({
@@ -83,22 +119,21 @@ export class OrdersService {
   async createOrder(payload: OrderPayload) {
     const profile = await this.clientProcess(payload.profileId);
     const client = await this.clientProcess(payload.clientId);
-    console.log('client', client);
-    const processing = await this.orderProcess(payload);
+    const processing = await this.orderStockProcess(payload);
+    await this.stockSoldProcess(processing.stocks.data);
     const creatOrder = this.orderRepository.create({
       ...payload,
       total: processing.total,
       subtotal: processing.total,
       totalPrice: processing.total,
     });
-
     const saveOrder = await this.orderRepository.save(creatOrder);
     this.logger.log('order is created', saveOrder);
     return {
       ...saveOrder,
-      items: processing.products.data,
+      items: processing.stocks.data,
       profile: profile,
-      client: client
+      client: client,
     };
   }
 

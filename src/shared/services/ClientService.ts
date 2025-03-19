@@ -2,6 +2,7 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { catchError, firstValueFrom } from 'rxjs';
 import { circularJSON } from '../circularJSON';
+import { Stock } from '../../models/Product.interface';
 
 @Injectable()
 export class ClientService {
@@ -30,6 +31,61 @@ export class ClientService {
       const resConvert = `${circularJSON.stringify(response)}`;
       // Process the response data
       this.logger.log(`[Product service]: ${resConvert}`);
+      return resConvert;
+    } catch (error) {
+      this.logger.error(`Error making HTTP request: ${error}`);
+      throw error;
+    }
+  }
+
+  // get products by ids
+  async stockSold(stocks: Stock[]): Promise<string> {
+    console.log('order', stocks);
+    try {
+      this.logger.log(`Processing stock for sold ${stocks}`);
+      const response = await firstValueFrom(
+        this.httpService
+          .post(`http://localhost:4000/stocks/stock-sold`, stocks)
+          .pipe(
+            catchError((error) => {
+              this.logger.log('error', error.response.data);
+              // Custom error handling
+              throw error;
+            }),
+          ),
+      );
+
+      const resConvert = `${circularJSON.stringify(response)}`;
+      // Process the response data
+      this.logger.log(`[Stock service]: ${resConvert}`);
+      return resConvert;
+    } catch (error) {
+      this.logger.error(`Error making HTTP request: ${error}`);
+      throw error;
+    }
+  }
+
+  // get stocks by ids
+  async getStocks(ids: string): Promise<string> {
+    try {
+      this.logger.log(`Getting stocks for ${ids}`);
+      const response = await firstValueFrom(
+        this.httpService
+          .get(
+            `http://localhost:4000/stocks/multiple-stocks?ids=${encodeURIComponent(ids)}`,
+          )
+          .pipe(
+            catchError((error) => {
+              this.logger.log('error', error.response.data);
+              // Custom error handling
+              throw error;
+            }),
+          ),
+      );
+
+      const resConvert = `${circularJSON.stringify(response)}`;
+      // Process the response data
+      this.logger.log(`[Stocks service]: ${resConvert}`);
       return resConvert;
     } catch (error) {
       this.logger.error(`Error making HTTP request: ${error}`);

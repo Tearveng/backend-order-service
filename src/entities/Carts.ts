@@ -16,8 +16,8 @@ export class CartsEntity {
   @Column()
   userId: number;
 
-  @OneToMany(() => ItemsEntity, (cartItem) => cartItem.cart, { cascade: true })
-  items: ItemsEntity[];
+  // @OneToMany(() => ItemsEntity, (cartItem) => cartItem.cart, { cascade: true })
+  // items: ItemsEntity[];
 
   @Column('decimal', { precision: 10, scale: 2, default: 0 })
   subtotal: number;

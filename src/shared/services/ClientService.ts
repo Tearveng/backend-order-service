@@ -120,6 +120,87 @@ export class ClientService {
     }
   }
 
+  // get products by id
+  async getProductByCode(code: string): Promise<string> {
+    try {
+      this.logger.log(`Getting product for ${code}`);
+      const response = await firstValueFrom(
+        this.httpService
+          .get(
+            `http://localhost:4000/products/product/code/${encodeURIComponent(code)}`,
+          )
+          .pipe(
+            catchError((error) => {
+              this.logger.log('error', error.response.data);
+              // Custom error handling
+              throw error;
+            }),
+          ),
+      );
+      const resConvert = `${circularJSON.stringify(response.data)}`;
+      // Process the response data
+      this.logger.log(`[Product service]: ${resConvert}`);
+      return resConvert;
+    } catch (error) {
+      this.logger.error(`Error making HTTP request: ${error}`);
+      throw error;
+    }
+  }
+
+  // get stock by code
+  async getStockByCode(code: string): Promise<string> {
+    try {
+      this.logger.log(`Getting stock for ${code}`);
+      const response = await firstValueFrom(
+        this.httpService
+          .get(
+            `http://localhost:4000/stocks/stock/code/${encodeURIComponent(code)}`,
+          )
+          .pipe(
+            catchError((error) => {
+              this.logger.log('error', error.response.data);
+              // Custom error handling
+              throw error;
+            }),
+          ),
+      );
+      const resConvert = `${circularJSON.stringify(response.data)}`;
+      // Process the response data
+      this.logger.log(`[Stock service]: ${resConvert}`);
+      return resConvert;
+    } catch (error) {
+      this.logger.error(`Error making HTTP request: ${error}`);
+      throw error;
+    }
+  }
+
+  // get stock by sku-code
+  async getStockBySkuCode(skuCode: string): Promise<string> {
+    try {
+      this.logger.log(`Getting stock for ${skuCode}`);
+      const response = await firstValueFrom(
+        this.httpService
+          .get(
+            `http://localhost:4000/stocks/stock/sku-code/${encodeURIComponent(skuCode)}`,
+          )
+          .pipe(
+            catchError((error) => {
+              this.logger.log('error', error.response.data);
+              // Custom error handling
+              throw error;
+            }),
+          ),
+      );
+      const resConvert = `${circularJSON.stringify(response.data)}`;
+      // Process the response data
+      this.logger.log(`[Stock service]: ${resConvert}`);
+      return resConvert;
+    } catch (error) {
+      this.logger.error(`Error making HTTP request: ${error}`);
+      throw error;
+    }
+  }
+
   // get profile by id
   async getProfileById(id: number | string): Promise<string> {
     try {
@@ -134,7 +215,7 @@ export class ClientService {
       );
       const resConvert = `${circularJSON.stringify(response.data)}`;
       // Process the response data
-      this.logger.log(`[Profile service]: successfully profile`);
+      this.logger.log(`[Profile service]: successfully ${resConvert}`);
       return resConvert;
     } catch (error) {
       this.logger.error('Error making HTTP request:', error);

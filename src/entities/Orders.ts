@@ -2,11 +2,13 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Product } from '../models/Product.interface';
 import { Profile } from '../models/Profile.interface';
+import { ItemsEntity } from './Items';
 
 @Entity()
 export class OrdersEntity {
@@ -32,7 +34,11 @@ export class OrdersEntity {
 
   client: Profile;
 
-  items: Product[];
+  @Column({ default: 'PENDING' })
+  status: string;
+
+  @OneToMany(() => ItemsEntity, (item) => item.order)
+  items: ItemsEntity[];
 
   @Column()
   subtotal: number;
@@ -43,7 +49,7 @@ export class OrdersEntity {
   @Column({ default: 'USD' })
   currency: string;
 
-  @Column({nullable: true})
+  @Column({ nullable: true })
   couponCode: string;
 
   @CreateDateColumn()

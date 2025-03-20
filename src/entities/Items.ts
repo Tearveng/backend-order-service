@@ -4,22 +4,20 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
-  JoinColumn,
   ManyToOne,
 } from 'typeorm';
-import { CartsEntity } from './Carts';
+import { OrdersEntity } from './Orders';
 
 @Entity()
 export class ItemsEntity {
   @PrimaryGeneratedColumn('uuid')
   itemId: number;
 
-  @ManyToOne(() => CartsEntity, (cart) => cart.items)
-  @JoinColumn({ name: 'cartId' })
-  cart: CartsEntity;
+  @ManyToOne(() => OrdersEntity, (order) => order.items)
+  order: OrdersEntity;
 
   @Column()
-  productId: number;
+  productCode: string;
 
   @Column()
   name: string;
@@ -45,8 +43,14 @@ export class ItemsEntity {
   @Column('decimal', { precision: 10, scale: 2.0 })
   totalPrice: number;
 
+  @Column()
+  profileId: number;
+
+  @Column()
+  clientId: number;
+
   @Column({ default: '' })
-  productImage: string;
+  stockUrl: string;
 
   @Column({ default: '' })
   productUrl: string;

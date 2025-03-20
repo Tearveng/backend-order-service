@@ -16,8 +16,8 @@ async function bootstrap() {
     origin: '*',
   });
 
-   // Apply AxiosExceptionFilter globally
-   app.useGlobalFilters(new AxiosExceptionFilter());
+  // Apply AxiosExceptionFilter globally
+  app.useGlobalFilters(new AxiosExceptionFilter());
 
   // set up swagger
   const config = new DocumentBuilder()

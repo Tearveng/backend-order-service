@@ -13,6 +13,7 @@ import { circularJSON } from '../../shared/circularJSON';
 import { ClientService } from '../../shared/services/ClientService';
 import { calculateTotal } from '../../utils/CalculateTotal';
 import { eFindBySkuCode } from '../../utils/EFoundBySkuCode';
+import { ItemsService } from '../items/item.service';
 
 @Injectable()
 export class OrdersService {
@@ -21,6 +22,7 @@ export class OrdersService {
   constructor(
     @InjectRepository(OrdersEntity)
     private readonly orderRepository: Repository<OrdersEntity>,
+    private readonly itemService: ItemsService,
     private readonly clientService: ClientService,
   ) {}
 
@@ -73,7 +75,11 @@ export class OrdersService {
     // get total
     const total = stocks.data
       .flatMap((p: Stock) =>
-        calculateTotal(p.price, eFindBySkuCode(p.skuCode, payload.items)),
+        calculateTotal(
+          p.price,
+          eFindBySkuCode(p.skuCode, payload.items),
+          p.discount,
+        ),
       )
       .reduce((acc, current) => acc + current, 0);
 
@@ -120,18 +126,30 @@ export class OrdersService {
     const profile = await this.clientProcess(payload.profileId);
     const client = await this.clientProcess(payload.clientId);
     const processing = await this.orderStockProcess(payload);
+    this.logger.log('stock processing', processing);
     await this.stockSoldProcess(processing.stocks.data);
     const creatOrder = this.orderRepository.create({
       ...payload,
+      status: 'DONE',
       total: processing.total,
       subtotal: processing.total,
       totalPrice: processing.total,
     });
     const saveOrder = await this.orderRepository.save(creatOrder);
+    for (const item of payload.items) {
+      await this.itemService.createItem({
+        quantity: item.quantity,
+        productCode: item.code,
+        stockSkuCode: item.skuCode,
+        profileId: profile.id,
+        clientId: client.id,
+        order: saveOrder,
+        variant: {},
+      });
+    }
     this.logger.log('order is created', saveOrder);
     return {
       ...saveOrder,
-      items: processing.stocks.data,
       profile: profile,
       client: client,
     };

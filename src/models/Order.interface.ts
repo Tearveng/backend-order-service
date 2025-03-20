@@ -1,5 +1,6 @@
 export interface PayloadItems {
   id: number;
+  code: string;
   skuCode: string;
   quantity: number;
   discount: number;

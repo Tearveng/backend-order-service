@@ -18,14 +18,14 @@ export class CartsService {
   ) {}
 
   async createCart(payload: CartPayload) {
-    const { userId } = payload;
-    const cart = this.cartRepository.create({
-      userId,
-      items: [],
-    });
-    const saveCart = await this.cartRepository.save(cart);
-    this.logger.log('cart is created', saveCart);
-    return saveCart;
+    // const { userId } = payload;
+    // const cart = this.cartRepository.create({
+    //   userId,
+    //   items: [],
+    // });
+    // const saveCart = await this.cartRepository.save(cart);
+    // this.logger.log('cart is created', saveCart);
+    // return saveCart;
   }
 
   async paginateCarts(page = 1, limit = 10) {

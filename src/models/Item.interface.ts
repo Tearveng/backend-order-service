@@ -1,5 +1,11 @@
+import { OrdersEntity } from '../entities/Orders';
+
 export interface ItemPayload {
-  productId: number;
+  productCode: string;
+  stockSkuCode: string;
   quantity: number;
   variant: object;
+  clientId: number;
+  profileId: number;
+  order: OrdersEntity;
 }

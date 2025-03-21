@@ -28,6 +28,9 @@ export class ItemsEntity {
   @Column('decimal', { precision: 10, scale: 2.0 })
   price: number;
 
+  @Column('decimal', { precision: 10, scale: 2.0, default: 0 })
+  discount: number;
+
   @Column('json')
   variant: object;
 

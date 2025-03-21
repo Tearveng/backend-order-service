@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {forwardRef, Inject, Injectable, Logger, NotFoundException} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { OrdersEntity } from '../../entities/Orders';
@@ -22,6 +22,7 @@ export class OrdersService {
   constructor(
     @InjectRepository(OrdersEntity)
     private readonly orderRepository: Repository<OrdersEntity>,
+    @Inject(forwardRef(() => ItemsService))
     private readonly itemService: ItemsService,
     private readonly clientService: ClientService,
   ) {}
@@ -95,6 +96,7 @@ export class OrdersService {
 
   // find all orders pagination
   async paginateOrders(page = 1, limit = 10) {
+    const results = [];
     const [orders, total] = await this.orderRepository.findAndCount({
       order: {
         createdAt: 'asc',
@@ -102,9 +104,14 @@ export class OrdersService {
       skip: (page - 1) * limit,
       take: limit,
     });
+    for (const order of orders) {
+      const profile = await this.clientProcess(order.profileId);
+      const client = await this.clientProcess(order.clientId);
+      results.push({ ...order, profile, client });
+    }
 
     return {
-      data: orders,
+      data: results,
       meta: {
         totalItems: total,
         itemCount: orders.length,
@@ -137,15 +144,21 @@ export class OrdersService {
     });
     const saveOrder = await this.orderRepository.save(creatOrder);
     for (const item of payload.items) {
-      await this.itemService.createItem({
-        quantity: item.quantity,
-        productCode: item.code,
-        stockSkuCode: item.skuCode,
-        profileId: profile.id,
-        clientId: client.id,
-        order: saveOrder,
-        variant: {},
-      });
+      const getStock = processing.stocks.data.find(
+        (st) => st.skuCode === item.skuCode,
+      );
+      if (getStock) {
+        await this.itemService.createItem({
+          quantity: item.quantity,
+          productCode: item.code,
+          stockSkuCode: item.skuCode,
+          profileId: profile.id,
+          clientId: client.id,
+          order: saveOrder,
+          discount: getStock.discount,
+          variant: {},
+        });
+      }
     }
     this.logger.log('order is created', saveOrder);
     return {

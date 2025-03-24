@@ -21,6 +21,11 @@ export class OrdersController {
     return this.orderService.paginateOrders(page, limit);
   }
 
+  @Get('/order-summary')
+  async getOrderSummary() {
+    return this.orderService.orderSummary();
+  }
+
   @Put('/update-orders/:id')
   async update(@Param('id') id: number, @Body() payload: OrderPayload) {
     return this.orderService.updateOrder(id, payload);

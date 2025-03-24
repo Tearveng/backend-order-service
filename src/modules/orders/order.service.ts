@@ -1,4 +1,10 @@
-import {forwardRef, Inject, Injectable, Logger, NotFoundException} from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { OrdersEntity } from '../../entities/Orders';
@@ -83,8 +89,13 @@ export class OrdersService {
         ),
       )
       .reduce((acc, current) => acc + current, 0);
+    const subTotal = stocks.data
+      .flatMap((p: Stock) =>
+        calculateTotal(p.price, eFindBySkuCode(p.skuCode, payload.items)),
+      )
+      .reduce((acc, current) => acc + current, 0);
 
-    return { stocks: updateQuantity, total };
+    return { stocks: updateQuantity, subTotal, total };
   }
 
   async stockSoldProcess(stocks: Stock[]) {
@@ -94,12 +105,40 @@ export class OrdersService {
     );
   }
 
+  // order summary
+  async orderSummary() {
+    const status = await this.orderRepository
+      .createQueryBuilder('order')
+      .select('order.status', 'status')
+      .addSelect('COUNT(order.id)', 'count')
+      .groupBy('order.status')
+      .orderBy('order.status', 'ASC')
+      .getRawMany();
+    const orderAmount = await this.orderRepository
+      .createQueryBuilder('order')
+      .select('SUM(order.subtotal)', 'subtotal')
+      .getRawOne();
+    const revenue = await this.orderRepository
+      .createQueryBuilder('order')
+      .select('SUM(order.totalPrice)', 'total')
+      .getRawOne();
+
+    return {
+      status,
+      orderAmount,
+      revenue,
+    };
+  }
+
   // find all orders pagination
   async paginateOrders(page = 1, limit = 10) {
     const results = [];
     const [orders, total] = await this.orderRepository.findAndCount({
       order: {
-        createdAt: 'asc',
+        createdAt: 'desc',
+      },
+      relations: {
+        items: true,
       },
       skip: (page - 1) * limit,
       take: limit,
@@ -139,7 +178,7 @@ export class OrdersService {
       ...payload,
       status: 'DONE',
       total: processing.total,
-      subtotal: processing.total,
+      subtotal: processing.subTotal,
       totalPrice: processing.total,
     });
     const saveOrder = await this.orderRepository.save(creatOrder);

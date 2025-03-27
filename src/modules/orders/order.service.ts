@@ -34,7 +34,12 @@ export class OrdersService {
   ) {}
 
   async findOrderById(id: number): Promise<OrdersEntity> {
-    const order = await this.orderRepository.findOneBy({ id });
+    const order = await this.orderRepository.findOne({
+      where: { id },
+      relations: {
+        items: true,
+      },
+    });
     if (!order) {
       throw new NotFoundException('Order not found');
     }
@@ -122,7 +127,6 @@ export class OrdersService {
       .createQueryBuilder('order')
       .select('SUM(order.totalPrice)', 'total')
       .getRawOne();
-
     return {
       status,
       orderAmount,

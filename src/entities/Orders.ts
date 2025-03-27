@@ -6,7 +6,6 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Product } from '../models/Product.interface';
 import { Profile } from '../models/Profile.interface';
 import { ItemsEntity } from './Items';
 
@@ -36,6 +35,9 @@ export class OrdersEntity {
 
   @Column({ default: 'PENDING' })
   status: string;
+
+  @Column({ default: '' })
+  address: string;
 
   @OneToMany(() => ItemsEntity, (item) => item.order)
   items: ItemsEntity[];

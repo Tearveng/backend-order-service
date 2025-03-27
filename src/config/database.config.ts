@@ -12,7 +12,7 @@ export default registerAs('database', () => ({
   database: process.env.DB_NAME, //'eiii_kommerce'
   entities: [OrdersEntity, CartsEntity, ItemsEntity],
   synchronize: true,
-  logging: process.env.NODE_ENV === 'development',
+  logging: false, // process.env.NODE_ENV === 'development',
   migrations: [`${__dirname}/../../db/migrations/*{.ts,.js}`],
   migrationsTableName: 'order_migrations',
 }));

@@ -26,6 +26,11 @@ export class OrdersController {
     return this.orderService.orderSummary();
   }
 
+  @Get('/:id')
+  async getOrderByDetail(@Param('id') id: number) {
+    return this.orderService.findOrderById(id);
+  }
+
   @Put('/update-orders/:id')
   async update(@Param('id') id: number, @Body() payload: OrderPayload) {
     return this.orderService.updateOrder(id, payload);

@@ -17,8 +17,9 @@ export class OrdersController {
   async getAllOrdersPagination(
     @Query('page') page = 1,
     @Query('limit') limit = 10,
+    @Query('search') search: string,
   ) {
-    return this.orderService.paginateOrders(page, limit);
+    return this.orderService.paginateOrders(page, limit, search);
   }
 
   @Get('/order-summary')
@@ -27,12 +28,12 @@ export class OrdersController {
   }
 
   @Get('/:id')
-  async getOrderByDetail(@Param('id') id: number) {
+  async getOrderByDetail(@Param('id') id: string) {
     return this.orderService.findOrderById(id);
   }
 
   @Put('/update-orders/:id')
-  async update(@Param('id') id: number, @Body() payload: OrderPayload) {
+  async update(@Param('id') id: string, @Body() payload: OrderPayload) {
     return this.orderService.updateOrder(id, payload);
   }
 }

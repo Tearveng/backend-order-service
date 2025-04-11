@@ -6,7 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { OrdersEntity } from '../../entities/Orders';
 import { OrderPayload, PayloadItems } from '../../models/Order.interface';
 import {
@@ -33,7 +33,7 @@ export class OrdersService {
     private readonly clientService: ClientService,
   ) {}
 
-  async findOrderById(id: number): Promise<OrdersEntity> {
+  async findOrderById(id: string): Promise<OrdersEntity> {
     const order = await this.orderRepository.findOne({
       where: { id },
       relations: {
@@ -135,9 +135,12 @@ export class OrdersService {
   }
 
   // find all orders pagination
-  async paginateOrders(page = 1, limit = 10) {
+  async paginateOrders(page = 1, limit = 10, search: string = '') {
     const results = [];
     const [orders, total] = await this.orderRepository.findAndCount({
+      where: {
+        id: Like(`%${search}%`),
+      },
       order: {
         createdAt: 'desc',
       },
@@ -212,7 +215,7 @@ export class OrdersService {
   }
 
   // update order
-  async updateOrder(id: number, payload: OrderPayload) {
+  async updateOrder(id: string, payload: OrderPayload) {
     const processing = await this.orderProcess(payload);
     const previous = await this.findOrderById(id);
     const saveOrder = await this.orderRepository.save({

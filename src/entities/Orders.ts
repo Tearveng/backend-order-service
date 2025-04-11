@@ -1,18 +1,20 @@
 import {
+  BaseEntity,
+  BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
   OneToMany,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Profile } from '../models/Profile.interface';
 import { ItemsEntity } from './Items';
 
 @Entity()
-export class OrdersEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
+export class OrdersEntity extends BaseEntity {
+  @PrimaryColumn()
+  id: string;
 
   @Column({ type: 'int' })
   profileId: number;
@@ -28,6 +30,13 @@ export class OrdersEntity {
 
   @Column()
   total: number;
+
+  @BeforeInsert()
+  async generateCustomId() {
+    const count = await OrdersEntity.count(); // 👈 count existing records
+    const nextId = count + 1;
+    this.id = `${String(nextId).padStart(6, '0')}`; // ➜ "#000024"
+  }
 
   profile: Profile;
 
